@@ -8,10 +8,10 @@ def type_of_var(variable):
 def result(matrixr):
     print('The result is:')
     for i in matrixr:
-        string = ''
+        r_string = ''
         for j in i:
-            string = string + str(j) + ' '
-        print(string.rstrip())
+            r_string = r_string + str(j) + ' '
+        print(r_string.rstrip())
 
 
 def det(tab_d):
@@ -44,6 +44,7 @@ if __name__ == "__main__":
         print('3. Multiply matrices')
         print('4. Transpose matrix')
         print('5. Calculate a determinant')
+        print('6. Inverse matrix')
         print('0. Exit')
         choose = input('Your choice: > ')
 
@@ -124,3 +125,63 @@ if __name__ == "__main__":
             matrix = [[type_of_var(j) for j in i] for i in matrix]
             print('The result is:')
             print(det(matrix), '\n')
+
+        if choose == '6':
+            rows, columns = map(int, input('Enter matrix size: > ').split())
+            if rows != columns:
+                print('ERROR')
+                continue
+            print('Enter matrix:')
+            matrix = [input('> ').split() for i in range(rows)]
+            matrix = [[type_of_var(j) for j in i] for i in matrix]
+            d = det(matrix)
+            if d == 0:
+                print("This matrix doesn't have an inverse.")
+                continue
+            else:
+                inverse_det = 1 / det(matrix)
+                row_to_det = 0
+                tab_to_det = []
+                for by_row in matrix:
+                    column_to_det = 0
+                    row_of_tab_to_det = []
+                    for by_column in by_row:
+                        new_tab = []
+                        for row_number, row in enumerate(matrix):
+                            new_row = []
+                            for column_number, column in enumerate(row):
+                                if column_number != column_to_det and row_number != row_to_det:
+                                    new_row.append(column)
+                            if new_row:
+                                new_tab.append(new_row)
+                        column_to_det += 1
+                        row_of_tab_to_det.append(det(new_tab))
+                    tab_to_det.append(row_of_tab_to_det)
+                    row_to_det += 1
+                tab_proper_sign = []
+                for row_to_power_number, row_to_power in enumerate(tab_to_det):
+                    row_proper_sign = []
+                    for col_to_pow_num, col_to_pow in enumerate(row_to_power):
+                        row_proper_sign.append(col_to_pow * ((-1) ** (col_to_pow_num + 1 + row_to_power_number + 1)))
+                    tab_proper_sign.append(row_proper_sign)
+                transposed = [[row[i] for row in tab_proper_sign] for i in range(len(tab_proper_sign[0]))]
+                for m in range(len(transposed)):
+                    for n in range(len(transposed[0])):
+                        transposed[m][n] = float(transposed[m][n] * inverse_det)
+                        if transposed[m][n] in (-0.0, 0.0):
+                            transposed[m][n] = 0
+                print('The result is:')
+                for row_result in transposed:
+                    result_string_row = ''
+                    for column_result in row_result:
+                        result_string_char = str(column_result)
+                        dot_present = 0
+                        for char_pos, char in enumerate(str(column_result)):
+                            if char == '.':
+                                dot_present = char_pos
+                                break
+                        if dot_present != 0:
+                            result_string_char = result_string_char[:(dot_present + 3)]
+                        result_string_row = result_string_row + result_string_char + ' '
+                    print(result_string_row)
+                print('\n')
